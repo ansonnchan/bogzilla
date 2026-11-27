@@ -10,6 +10,7 @@
 
 #include "../tests/fixtures.hpp"
 #include "bogzilla/board.hpp"
+#include "bogzilla/dawg.hpp"
 #include "bogzilla/packed_trie.hpp"
 #include "bogzilla/solver.hpp"
 #include "bogzilla/trie.hpp"
@@ -38,6 +39,11 @@ const bogzilla::Trie& dictionary_trie() {
 const bogzilla::PackedTrie& dictionary_packed() {
   static const auto trie = bogzilla::PackedTrie::from_words(dictionary());
   return trie;
+}
+
+const bogzilla::Dawg& dictionary_dawg() {
+  static const auto dawg = bogzilla::Dawg::from_words(dictionary());
+  return dawg;
 }
 
 const std::vector<bogzilla::Board>& boards() {
@@ -80,6 +86,19 @@ void BM_PackedTrieBuild(benchmark::State& state) {
 }
 BENCHMARK(BM_PackedTrieBuild)->Unit(benchmark::kMillisecond);
 
+void BM_DawgBuild(benchmark::State& state) {
+  const auto& words = dictionary();
+  std::size_t nodes = 0;
+  for (auto _ : state) {
+    auto dawg = bogzilla::Dawg::from_words(words);
+    nodes = dawg.node_count();
+    benchmark::DoNotOptimize(dawg);
+  }
+  state.counters["nodes"] = static_cast<double>(nodes);
+  state.counters["MB"] = static_cast<double>(nodes) * 8 / 1e6;
+}
+BENCHMARK(BM_DawgBuild)->Unit(benchmark::kMillisecond);
+
 // One iteration solves all saved boards.
 template <typename TrieT>
 void solve_boards(benchmark::State& state, const TrieT& trie) {
@@ -102,5 +121,8 @@ BENCHMARK(BM_SolveBoards)->Unit(benchmark::kMicrosecond);
 
 void BM_SolveBoardsPacked(benchmark::State& state) { solve_boards(state, dictionary_packed()); }
 BENCHMARK(BM_SolveBoardsPacked)->Unit(benchmark::kMicrosecond);
+
+void BM_SolveBoardsDawg(benchmark::State& state) { solve_boards(state, dictionary_dawg()); }
+BENCHMARK(BM_SolveBoardsDawg)->Unit(benchmark::kMicrosecond);
 
 }  // namespace
