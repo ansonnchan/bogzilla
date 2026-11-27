@@ -2,7 +2,7 @@
 
 A monster at finding words.
 
-A fast Boggle solver written in Rust, with a web interface and potentially a Chrome extension. Mainly an excuse to explore algorithms, data structures, and performance optimization.
+A fast Boggle solver written in C++, with a web interface and potentially a Chrome extension. Mainly an excuse to explore algorithms, data structures, and performance optimization.
 
 ## Core solver
 
@@ -57,7 +57,7 @@ A fast Boggle solver written in Rust, with a web interface and potentially a Chr
 
 ## Tech stack
 
-- Rust — core solver
+- C++ — core solver
 - WebAssembly — browser integration
 - React / TypeScript — web interface
 - Tailwind CSS — styling
