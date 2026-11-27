@@ -13,7 +13,10 @@ yet, and shows the path of the next one on a copy of the board, one hint at a ti
   tiles to show the order. One word at a time, never the whole list.
 - **Refresh:** event-driven, not polled. Recompute the hint whenever a correct word is accepted
   (a `MutationObserver` on the found-words list). No timers.
-- **Hint ordering:** prefer common words over obscure ones.
+- **Hint ordering:** prefer common words over obscure ones. Until we have a word-frequency
+  list, shorter words go first as a stand-in.
+- **Hint stability:** a hint stays until it's found or skipped. Finding a different word
+  doesn't swap it out.
 - **Read only:** never auto-enter words into the game.
 - **Keep the C++ solver** even though Wordshake exposes its own answer list. It's the learning
   goal (algorithms and performance), and it supports sites that don't expose answers. On
@@ -25,8 +28,8 @@ yet, and shows the path of the next one on a copy of the board, one hint at a ti
 | Directory | What | Tech |
 |---|---|---|
 | `core/` | Solver library: trie, DFS + backtracking, bitmask visited set, precomputed adjacency, `Qu` tiles, path coordinates. No I/O. | C++20, CMake |
-| `wasm/` | Bindings that compile `core/` to WebAssembly so the extension can call it. | Emscripten |
-| `extension/` | Site adapters (content scripts) read the page; side panel renders the board and hint; runs the WASM solver. | TypeScript, Chrome MV3 |
+| `wasm/` | Bindings that compile `core/` to WebAssembly: `solve(tiles, words, minLength)` returns plain JS objects. Built with `-sDYNAMIC_EXECUTION=0` because MV3 forbids `eval`; the manifest allows `wasm-unsafe-eval`. | Emscripten, embind |
+| `extension/` | Site adapters (content scripts) read the page and push state on DOM changes; the side panel runs the WASM solver, picks the hint and draws the board. | TypeScript, esbuild, Vitest, Chrome MV3 |
 | `tests/`, `bench/` | Unit tests and benchmarks for `core/`. | GoogleTest, Google Benchmark |
 
 ## Data flow
