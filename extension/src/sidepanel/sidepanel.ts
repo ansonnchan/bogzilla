@@ -1,4 +1,4 @@
-import { pickHint, type Solution } from "../hint";
+import { parseFrequencyList, pickHint, type FrequencyRanks, type Solution } from "../hint";
 import type { GameState, Message } from "../messages";
 
 interface BogzillaModule {
@@ -16,6 +16,7 @@ const el = {
 };
 
 let wasm: BogzillaModule | null = null;
+let ranks: FrequencyRanks = new Map();
 let game: GameState | null = null;
 let solutions: Solution[] = [];
 let solvedKey = "";
@@ -27,6 +28,11 @@ async function loadSolver(): Promise<BogzillaModule> {
   // Loaded at runtime rather than bundled so Emscripten can find bogzilla.wasm next to it.
   const { default: create } = await import(chrome.runtime.getURL("bogzilla.mjs"));
   return create();
+}
+
+async function loadRanks(): Promise<FrequencyRanks> {
+  const response = await fetch(chrome.runtime.getURL("frequency.txt"));
+  return parseFrequencyList(await response.text());
 }
 
 function update(state: GameState | null): void {
@@ -54,7 +60,7 @@ function render(): void {
   }
 
   const found = new Set(game.found);
-  const hint = pickHint(solutions, found, current, skipped);
+  const hint = pickHint(solutions, found, current, skipped, ranks);
   current = hint?.word ?? null;
 
   const foundCount = solutions.filter((s) => found.has(s.word)).length;
@@ -140,6 +146,14 @@ chrome.tabs.onUpdated.addListener((_id, info, tab) => {
   if (tab.active && info.status === "complete") void requestState();
 });
 window.addEventListener("resize", () => render());
+
+// Hints still work without the frequency list (shortest first), so its failure isn't fatal.
+loadRanks()
+  .then((loaded) => {
+    ranks = loaded;
+    render();
+  })
+  .catch(console.error);
 
 loadSolver()
   .then((module) => {

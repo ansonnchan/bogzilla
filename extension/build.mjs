@@ -27,7 +27,13 @@ await build({
   logLevel: "info",
 });
 
-for (const file of ["manifest.json", "src/sidepanel/sidepanel.html", "src/sidepanel/sidepanel.css"]) {
+for (const file of [
+  "manifest.json",
+  "src/sidepanel/sidepanel.html",
+  "src/sidepanel/sidepanel.css",
+  "data/frequency.txt",
+  "data/NOTICE.md",
+]) {
   cpSync(file, `dist/${file.split("/").pop()}`);
 }
 cpSync(`${wasmDir}/bogzilla.mjs`, "dist/bogzilla.mjs");
