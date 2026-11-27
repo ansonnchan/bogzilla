@@ -23,6 +23,19 @@ yet, and shows the path of the next one on a copy of the board, one hint at a ti
   goal (algorithms and performance), and it supports sites that don't expose answers. On
   Wordshake, the page's answer list decides *which* words count; our solver finds the paths.
   Cross-checking the two doubles as a correctness test.
+- **Fallback dictionary: ENABLE** (public domain, `extension/data/enable1.txt`), for sites
+  without an answer list. Loaded only when needed. Chosen with `tools/dict_eval` against 20
+  saved Wordshake boards (`tests/fixtures/wordshake_boards.txt`):
+
+  | List | Words | Finds game's answers | Extra words / board |
+  |---|---|---|---|
+  | **ENABLE** | 173k | **97.3%** | **26.6** |
+  | dwyl words_alpha | 370k | 97.2% | 123.0 |
+  | SCOWL British size 70 | 112k | 88.8% | 10.9 |
+  | SCOWL British size 95 | 425k | 94.6% | 119.7 |
+
+  Intersecting ENABLE with the others cut extras by under 10% but lost recall. The Oxford
+  definitions dump was ruled out (no plurals or verb forms, copyrighted).
 
 ## Components
 
@@ -31,7 +44,8 @@ yet, and shows the path of the next one on a copy of the board, one hint at a ti
 | `core/` | Solver library: trie, DFS + backtracking, bitmask visited set, precomputed adjacency, `Qu` tiles, path coordinates. No I/O. | C++20, CMake |
 | `wasm/` | Bindings that compile `core/` to WebAssembly: `solve(tiles, words, minLength)` returns plain JS objects. Built with `-sDYNAMIC_EXECUTION=0` because MV3 forbids `eval`; the manifest allows `wasm-unsafe-eval`. | Emscripten, embind |
 | `extension/` | Site adapters (content scripts) read the page and push state on DOM changes; the side panel runs the WASM solver, picks the hint and draws the board. | TypeScript, esbuild, Vitest, Chrome MV3 |
-| `tests/`, `bench/` | Unit tests and benchmarks for `core/`. | GoogleTest, Google Benchmark |
+| `tests/`, `bench/` | Unit tests and benchmarks for `core/`; `tests/fixtures/` holds real Wordshake boards. | GoogleTest, Google Benchmark |
+| `tools/` | `dict_eval`: scores word lists against the saved boards. | C++ |
 
 ## Data flow
 
