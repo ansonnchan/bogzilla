@@ -39,4 +39,8 @@ if(BOGZILLA_BUILD_TESTS)
   include(GoogleTest)
 endif()
 
-# Subdirectories (core/, tests/) are added as they land.
+add_subdirectory(core)
+
+if(BOGZILLA_BUILD_TESTS)
+  add_subdirectory(tests)
+endif()
