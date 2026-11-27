@@ -18,6 +18,7 @@ const el = {
   board: $<HTMLDivElement>("board"),
   boardWrap: $<HTMLDivElement>("board-wrap"),
   pipe: $<SVGSVGElement>("pipe"),
+  arrows: $<SVGSVGElement>("arrows"),
   progress: $<HTMLParagraphElement>("progress"),
   status: $<HTMLParagraphElement>("status"),
   controls: $<HTMLDivElement>("controls"),
@@ -118,6 +119,13 @@ function render(): void {
   drawFound(foundWords);
 }
 
+// Shade for step `i` of a path: darkest at the first tile, lightest at the last, so the
+// direction reads even without the arrows.
+function stepColor(i: number, length: number): string {
+  const t = length > 1 ? i / (length - 1) : 0;
+  return `color-mix(in srgb, var(--accent-light) ${Math.round(t * 100)}%, var(--accent-strong))`;
+}
+
 function drawBoard(tiles: string[], path: number[]): void {
   const size = Math.round(Math.sqrt(tiles.length));
   el.board.style.setProperty("--size", String(size));
@@ -126,31 +134,67 @@ function drawBoard(tiles: string[], path: number[]): void {
       const tile = document.createElement("div");
       tile.className = "tile";
       tile.textContent = letters === "qu" ? "Qu" : letters;
-      if (path.includes(i)) tile.classList.add("on", ...(i === path[0] ? ["start"] : []));
+      const step = path.indexOf(i);
+      if (step >= 0) {
+        tile.classList.add("on");
+        tile.style.background = stepColor(step, path.length);
+      }
       return tile;
     }),
   );
-  drawPipe(path);
+  drawPath(path);
 }
 
-// A thick rounded line in the highlight colour runs under the tiles, joining the hint's tiles
-// into one shape so the order reads at a glance.
-function drawPipe(path: number[]): void {
+// A thick rounded pipe runs under the tiles, joining the hint into one shape; small arrows
+// on top of each joint point the way to go.
+function drawPath(path: number[]): void {
   el.pipe.replaceChildren();
+  el.arrows.replaceChildren();
   if (path.length < 2) return;
 
   const origin = el.boardWrap.getBoundingClientRect();
   const tiles = el.board.children;
-  const first = (tiles[0] as HTMLElement).getBoundingClientRect();
-  const points = path.map((i) => {
+  const width = (tiles[0] as HTMLElement).getBoundingClientRect().width;
+  const centers = path.map((i) => {
     const r = (tiles[i] as HTMLElement).getBoundingClientRect();
-    return `${r.left - origin.left + r.width / 2},${r.top - origin.top + r.height / 2}`;
+    return { x: r.left - origin.left + r.width / 2, y: r.top - origin.top + r.height / 2 };
   });
 
-  const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-  line.setAttribute("points", points.join(" "));
-  line.setAttribute("stroke-width", String(first.width * 0.42));
-  el.pipe.append(line);
+  const ns = "http://www.w3.org/2000/svg";
+  const arm = width * 0.11;
+  const placed: { x: number; y: number }[] = [];
+  for (let k = 1; k < centers.length; k++) {
+    const a = centers[k - 1]!;
+    const b = centers[k]!;
+
+    const segment = document.createElementNS(ns, "line");
+    segment.setAttribute("x1", String(a.x));
+    segment.setAttribute("y1", String(a.y));
+    segment.setAttribute("x2", String(b.x));
+    segment.setAttribute("y2", String(b.y));
+    segment.setAttribute("stroke-width", String(width * 0.42));
+    segment.style.stroke = stepColor(k - 0.5, path.length);
+    el.pipe.append(segment);
+
+    // Arrowhead pointing from a to b, at the joint's midpoint. When the path crosses itself
+    // (an X between two diagonals) two midpoints coincide, so slide the later arrow along
+    // its own segment until it's clear.
+    const spot =
+      [0.5, 0.3, 0.7]
+        .map((t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }))
+        .find((p) => placed.every((q) => Math.hypot(p.x - q.x, p.y - q.y) > arm * 2.2)) ??
+      { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    placed.push(spot);
+    const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+    const arrow = document.createElementNS(ns, "path");
+    arrow.setAttribute("d", `M ${arm} 0 L ${-arm * 0.7} ${-arm * 0.85} L ${-arm * 0.7} ${arm * 0.85} Z`);
+    arrow.setAttribute("stroke-width", String(Math.max(1.5, width * 0.035)));
+    arrow.setAttribute(
+      "transform",
+      `translate(${spot.x} ${spot.y}) rotate(${angle})`,
+    );
+    el.arrows.append(arrow);
+  }
 }
 
 function drawLengths(found: ReadonlySet<string>): void {

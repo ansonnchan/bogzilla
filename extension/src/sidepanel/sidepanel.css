@@ -7,6 +7,7 @@
   --muted: #998b78;
   --accent: #8a9a6e;
   --accent-strong: #6f7f55;
+  --accent-light: #b3c09b;
   --on-accent: #fffdf8;
   color-scheme: light;
 }
@@ -79,7 +80,8 @@ main {
   gap: 10px;
 }
 
-#pipe {
+#pipe,
+#arrows {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -87,9 +89,13 @@ main {
   pointer-events: none;
 }
 
-#pipe polyline {
-  fill: none;
-  stroke: var(--accent);
+#pipe line {
+  stroke-linecap: round;
+}
+
+#arrows path {
+  fill: var(--on-accent);
+  stroke: var(--on-accent);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -111,13 +117,8 @@ main {
 }
 
 .tile.on {
-  background: var(--accent);
   color: var(--on-accent);
   box-shadow: none;
-}
-
-.tile.start {
-  background: var(--accent-strong);
 }
 
 #controls {
