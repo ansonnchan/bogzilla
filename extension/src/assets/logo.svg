@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- back plates -->
+  <path fill="#6f7f55" d="M9 44l-6-4 7-2zM10 33l-6-5 7-1zM14 23l-4-6 7 1zM22 16l-1-7 6 4z"/>
+  <!-- head and neck -->
+  <path fill="#8a9a6e" d="M12 60c-4-12-4-26 4-35 7-8 18-11 28-7l11 4c6 2 7 9 3 12-2 2-6 2-9 2-1 9-5 17-12 24z"/>
+  <!-- belly -->
+  <path fill="#c9d1b4" d="M30 60c4-5 7-11 8-17-4 3-9 4-14 3 0 5 1 10 2 14z"/>
+  <!-- mouth and tooth -->
+  <path fill="none" stroke="#3b332b" stroke-width="2" stroke-linecap="round" d="M43 34c4 1 8 1 12-1"/>
+  <path fill="#fffdf8" d="M47 34.6l1.6 3 1.4-3z"/>
+  <!-- eye and cheek -->
+  <circle cx="40" cy="24" r="3.6" fill="#3b332b"/>
+  <circle cx="41.2" cy="22.8" r="1.2" fill="#fffdf8"/>
+  <circle cx="36" cy="31" r="2.6" fill="#e3a98c" opacity=".55"/>
+  <!-- nostril -->
+  <circle cx="54" cy="26" r="1" fill="#6f7f55"/>
+</svg>

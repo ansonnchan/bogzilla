@@ -3,18 +3,40 @@
   "name": "bogzilla",
   "description": "Unofficial hints for Boggle-style word games, one word at a time.",
   "version": "0.1.0",
-  "permissions": ["sidePanel"],
-  "action": { "default_title": "Open bogzilla hints" },
-  "background": { "service_worker": "background.js" },
-  "side_panel": { "default_path": "sidepanel.html" },
+  "permissions": [
+    "sidePanel"
+  ],
+  "action": {
+    "default_title": "Open bogzilla hints",
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
   "content_scripts": [
     {
-      "matches": ["https://wordshake.com/boggle*"],
-      "js": ["wordshake.js"],
+      "matches": [
+        "https://wordshake.com/boggle*"
+      ],
+      "js": [
+        "wordshake.js"
+      ],
       "run_at": "document_idle"
     }
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   }
 }

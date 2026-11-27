@@ -34,6 +34,11 @@ for (const file of [
   "data/frequency.txt",
   "data/enable1.txt",
   "data/NOTICE.md",
+  "src/assets/logo.svg",
+  "src/assets/icon16.png",
+  "src/assets/icon32.png",
+  "src/assets/icon48.png",
+  "src/assets/icon128.png",
 ]) {
   cpSync(file, `dist/${file.split("/").pop()}`);
 }
