@@ -9,3 +9,7 @@ compile_commands.json
 
 # macOS
 .DS_Store
+
+# Extension
+node_modules/
+extension/dist/

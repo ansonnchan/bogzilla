@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "bogzilla",
+  "description": "Unofficial hints for Boggle-style word games, one word at a time.",
+  "version": "0.1.0",
+  "permissions": ["sidePanel"],
+  "action": { "default_title": "Open bogzilla hints" },
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "content_scripts": [
+    {
+      "matches": ["https://wordshake.com/boggle*"],
+      "js": ["wordshake.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}
