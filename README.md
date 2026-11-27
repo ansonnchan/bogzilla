@@ -33,13 +33,16 @@ Not affiliated with Hasbro. Boggle is a trademark of Hasbro.
 
 ## Algorithms & optimizations
 
-- Trie-based prefix searching.
-- DFS with backtracking.
-- Bitmasking to track visited cells.
-- Precomputed adjacency lists.
-- Board-level caching to avoid solving identical boards.
-- Explore arena-allocated tries for better memory locality.
-- Benchmark optimizations individually to see whether they actually improve performance.
+- [x] Trie-based prefix searching.
+- [x] DFS with backtracking.
+- [x] Bitmasking to track visited cells.
+- [x] Precomputed adjacency lists.
+- [x] Board-level caching to avoid solving identical boards (the side panel re-solves only
+  when the board or word list changes).
+- [x] Compact trie for better memory: `PackedTrie`, 8-byte nodes in one array, 13.5x less
+  memory than the baseline at the same speed.
+- [x] Benchmark optimizations individually (`bench/`, results in ARCHITECTURE.md).
+- [ ] Share common word endings too (a DAWG), to shrink the trie further.
 
 ## Chrome extension
 
