@@ -7,14 +7,16 @@
 namespace bogzilla {
 namespace {
 
+// Templated so the same search runs on Trie (baseline) and PackedTrie, which share an API.
+template <typename TrieT>
 class Search {
 public:
-  Search(const Board& board, const Trie& trie, SolveOptions options)
+  Search(const Board& board, const TrieT& trie, SolveOptions options)
       : board_(board), trie_(trie), options_(options), seen_(trie.node_count(), false) {}
 
   std::vector<FoundWord> run() {
     for (int tile = 0; tile < board_.tile_count(); ++tile) {
-      visit(tile, Trie::kRoot, 0);
+      visit(tile, TrieT::kRoot, 0);
     }
     std::sort(found_.begin(), found_.end(),
               [](const FoundWord& a, const FoundWord& b) { return a.word < b.word; });
@@ -25,10 +27,10 @@ private:
   // Steps onto `tile` from trie node `node`, then tries every unvisited neighbour.
   // Backtracks by undoing its changes to word_ and path_ on the way out. `visited` is a
   // bitmask over tile indices (boards have at most 25 tiles, so it fits in 32 bits).
-  void visit(int tile, Trie::NodeId node, std::uint32_t visited) {
+  void visit(int tile, typename TrieT::NodeId node, std::uint32_t visited) {
     const std::string& letters = board_.tile(tile);
     node = trie_.walk(node, letters);
-    if (node == Trie::kNone) return;  // no word starts this way: prune
+    if (node == TrieT::kNone) return;  // no word starts this way: prune
 
     visited |= std::uint32_t{1} << tile;
     word_ += letters;
@@ -48,7 +50,7 @@ private:
   }
 
   const Board& board_;
-  const Trie& trie_;
+  const TrieT& trie_;
   SolveOptions options_;
   // Indexed by trie node: each word ends at exactly one node, so this dedupes words.
   std::vector<bool> seen_;
@@ -60,7 +62,11 @@ private:
 }  // namespace
 
 std::vector<FoundWord> solve(const Board& board, const Trie& trie, SolveOptions options) {
-  return Search(board, trie, options).run();
+  return Search<Trie>(board, trie, options).run();
+}
+
+std::vector<FoundWord> solve(const Board& board, const PackedTrie& trie, SolveOptions options) {
+  return Search<PackedTrie>(board, trie, options).run();
 }
 
 }  // namespace bogzilla

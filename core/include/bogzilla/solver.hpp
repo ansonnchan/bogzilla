@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "bogzilla/board.hpp"
+#include "bogzilla/packed_trie.hpp"
 #include "bogzilla/trie.hpp"
 
 namespace bogzilla {
@@ -22,5 +23,6 @@ struct SolveOptions {
 // Every trie word that can be traced on the board, each once, sorted alphabetically.
 // When a word has several paths, the first one found is kept.
 std::vector<FoundWord> solve(const Board& board, const Trie& trie, SolveOptions options = {});
+std::vector<FoundWord> solve(const Board& board, const PackedTrie& trie, SolveOptions options = {});
 
 }  // namespace bogzilla
