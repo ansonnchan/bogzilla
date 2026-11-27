@@ -51,7 +51,8 @@ Not affiliated with Hasbro. Boggle is a trademark of Hasbro.
 - Event-driven: the hint updates the moment a correct word is accepted.
 - The solver runs locally through WebAssembly.
 - Side panel shows the board and the current hint's path.
-- Skip a hint, or hide hints while you're on a roll.
+- Filter hints by word length (3, 4, 5, 6, 7+), or ask for another word.
+- See the words you've found so far.
 
 ## Other ideas
 
