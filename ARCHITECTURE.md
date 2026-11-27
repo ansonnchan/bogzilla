@@ -13,8 +13,9 @@ yet, and shows the path of the next one on a copy of the board, one hint at a ti
   tiles to show the order. One word at a time, never the whole list.
 - **Refresh:** event-driven, not polled. Recompute the hint whenever a correct word is accepted
   (a `MutationObserver` on the found-words list). No timers.
-- **Hint ordering:** prefer common words over obscure ones. Until we have a word-frequency
-  list, shorter words go first as a stand-in.
+- **Hint ordering:** common words first, ranked by a subtitle-based frequency list
+  (`extension/data/frequency.txt`, CC BY-SA 4.0, see `data/NOTICE.md`). Words not in the list
+  are the obscure ones and go last, shortest first.
 - **Hint stability:** a hint stays until it's found or skipped. Finding a different word
   doesn't swap it out.
 - **Read only:** never auto-enter words into the game.
