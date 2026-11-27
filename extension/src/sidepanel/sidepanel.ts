@@ -26,7 +26,7 @@ const el = {
   skip: $<HTMLButtonElement>("skip"),
   foundSection: $<HTMLElement>("found-section"),
   foundCount: $<HTMLSpanElement>("found-count"),
-  found: $<HTMLUListElement>("found"),
+  found: $<HTMLDivElement>("found"),
 };
 
 const LENGTH_FILTERS: LengthFilter[] = [null, 3, 4, 5, 6, LONGEST_FILTER];
@@ -116,7 +116,7 @@ function render(): void {
   drawBoard(game.tiles, hint?.path ?? []);
   drawLengths(found);
   el.skip.disabled = !hint;
-  drawFound(foundWords);
+  drawFound(found);
 }
 
 // Shade for step `i` of a path: darkest at the first tile, lightest at the last, so the
@@ -220,22 +220,39 @@ function drawLengths(found: ReadonlySet<string>): void {
   );
 }
 
-// Longest first: those are the ones worth showing off.
-function drawFound(words: string[]): void {
-  el.foundCount.textContent = words.length ? `· ${words.length}` : "";
-  const sorted = [...words].sort((a, b) => b.length - a.length || a.localeCompare(b));
-  if (sorted.length === 0) {
-    const empty = document.createElement("li");
-    empty.className = "empty";
-    empty.textContent = "Nothing yet.";
-    el.found.replaceChildren(empty);
-    return;
-  }
+// One column per word length (3, 4, 5, 6, 7+), like Wordshake: found / total in the header,
+// found words running down underneath.
+function drawFound(found: ReadonlySet<string>): void {
+  const lengths = LENGTH_FILTERS.filter((f): f is number => f !== null);
+  const columns = lengths
+    .map((length) => {
+      const words = solutions.filter((s) => matchesLength(s.word, length)).map((s) => s.word);
+      return { length, total: words.length, found: words.filter((w) => found.has(w)).sort() };
+    })
+    .filter((c) => c.total > 0);
+
+  const foundTotal = columns.reduce((n, c) => n + c.found.length, 0);
+  el.foundCount.textContent = foundTotal ? `· ${foundTotal}` : "";
+  el.found.style.setProperty("--columns", String(columns.length));
   el.found.replaceChildren(
-    ...sorted.map((word) => {
-      const li = document.createElement("li");
-      li.textContent = word;
-      return li;
+    ...columns.map((c) => {
+      const column = document.createElement("div");
+      column.className = "column";
+      const heading = document.createElement("h3");
+      heading.textContent = c.length === LONGEST_FILTER ? `${c.length}+` : String(c.length);
+      const count = document.createElement("span");
+      count.textContent = `${c.found.length}/${c.total}`;
+      heading.append(count);
+      const list = document.createElement("ul");
+      list.append(
+        ...c.found.map((word) => {
+          const li = document.createElement("li");
+          li.textContent = word;
+          return li;
+        }),
+      );
+      column.append(heading, list);
+      return column;
     }),
   );
 }

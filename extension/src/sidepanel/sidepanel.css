@@ -184,26 +184,34 @@ h2 {
   color: var(--muted);
 }
 
+/* One column per word length, like Wordshake's word list. */
 #found {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(var(--columns, 5), minmax(0, 1fr));
+  gap: 10px;
+}
+
+.column h3 {
+  margin: 0 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.column h3 span {
+  margin-left: 4px;
+  font-weight: 400;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.column ul {
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-#found li {
-  padding: 2px 9px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--line);
   font-size: 13px;
-}
-
-#found .empty {
-  border: none;
-  background: none;
-  padding: 0;
-  color: var(--muted);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
