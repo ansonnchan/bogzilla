@@ -41,7 +41,7 @@ yet, and shows the path of the next one on a copy of the board, one hint at a ti
 
 | Directory | What | Tech |
 |---|---|---|
-| `core/` | Solver library: trie, DFS + backtracking, bitmask visited set, precomputed adjacency, `Qu` tiles, path coordinates. No I/O. | C++20, CMake |
+| `core/` | Solver library: `Trie` (baseline) and `PackedTrie` (used), DFS + backtracking, bitmask visited set, precomputed adjacency, `Qu` tiles, path coordinates. No I/O. | C++20, CMake |
 | `wasm/` | Bindings that compile `core/` to WebAssembly: `solve(tiles, words, minLength)` returns plain JS objects. Built with `-sDYNAMIC_EXECUTION=0` because MV3 forbids `eval`; the manifest allows `wasm-unsafe-eval`. | Emscripten, embind |
 | `extension/` | Site adapters (content scripts) read the page and push state on DOM changes; the side panel runs the WASM solver, picks the hint and draws the board. | TypeScript, esbuild, Vitest, Chrome MV3 |
 | `tests/`, `bench/` | Unit tests and benchmarks for `core/`; `tests/fixtures/` holds real Wordshake boards. | GoogleTest, Google Benchmark |
@@ -79,7 +79,9 @@ this baseline on its own.
 
 | Version | Trie build | Trie nodes | Trie memory | Solve per board |
 |---|---|---|---|---|
-| Baseline (flat nodes, 26 child slots each, bitmask DFS) | 12.4 ms | 388k | ~42 MB | 45 µs |
+| Baseline `Trie` (flat nodes, 26 child slots each, bitmask DFS) | 12.4 ms | 388k | ~42 MB | 45 µs |
+| `PackedTrie` (8-byte nodes: child bitmask + first-child index) | 14.5 ms | 388k | 3.1 MB | 45 µs |
 
-Solving is already fast; trie memory is the bottleneck (it all lives in the side panel's WASM
-heap when the fallback dictionary is used).
+`PackedTrie` cut trie memory 13.5x at the same solve speed, so the extension uses it. Its build
+includes sorting the word list. In WASM, a full ENABLE solve (passing 173k words from JS,
+building, solving) takes ~45 ms. `Trie` stays as the baseline for comparison.
