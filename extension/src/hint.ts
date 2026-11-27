@@ -32,6 +32,15 @@ export function orderCandidates(
     );
 }
 
+// null = any length; 7 means "7 or more", the last filter button.
+export type LengthFilter = number | null;
+export const LONGEST_FILTER = 7;
+
+export function matchesLength(word: string, filter: LengthFilter): boolean {
+  if (filter === null) return true;
+  return filter >= LONGEST_FILTER ? word.length >= LONGEST_FILTER : word.length === filter;
+}
+
 // Keeps the current hint until it's found or skipped, so finding some other word doesn't
 // swap the hint out from under the user. When everything left was skipped, starts over.
 export function pickHint(
@@ -40,8 +49,11 @@ export function pickHint(
   current: string | null,
   skipped: ReadonlySet<string>,
   ranks?: FrequencyRanks,
+  length: LengthFilter = null,
 ): Solution | null {
-  const candidates = orderCandidates(solutions, found, ranks);
+  const candidates = orderCandidates(solutions, found, ranks).filter((s) =>
+    matchesLength(s.word, length),
+  );
   const kept = candidates.find((s) => s.word === current && !skipped.has(s.word));
   if (kept) return kept;
   return candidates.find((s) => !skipped.has(s.word)) ?? candidates[0] ?? null;
