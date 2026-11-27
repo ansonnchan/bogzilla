@@ -70,3 +70,16 @@ yet, and shows the path of the next one on a copy of the board, one hint at a ti
 
 New Game rebuilds all of the above in place. Words are entered by swiping; keyboard typing
 does not register.
+
+## Performance
+
+Measured with `build/bench/bogzilla_bench` (Release, Apple Silicon), ENABLE dictionary,
+20 saved Wordshake boards. Each optimization from the README should be benchmarked against
+this baseline on its own.
+
+| Version | Trie build | Trie nodes | Trie memory | Solve per board |
+|---|---|---|---|---|
+| Baseline (flat nodes, 26 child slots each, bitmask DFS) | 12.4 ms | 388k | ~42 MB | 45 µs |
+
+Solving is already fast; trie memory is the bottleneck (it all lives in the side panel's WASM
+heap when the fallback dictionary is used).
