@@ -8,20 +8,29 @@
   </head>
   <body>
     <header>
+      <img src="logo.svg" alt="" width="28" height="28" />
       <h1>bogzilla</h1>
       <p id="progress"></p>
     </header>
+
     <main>
       <div id="board-wrap" hidden>
+        <svg id="pipe" aria-hidden="true"></svg>
         <div id="board"></div>
-        <svg id="trace" aria-hidden="true"></svg>
       </div>
       <p id="status">Open a Wordshake Boggle game to get hints.</p>
+
+      <div id="controls" hidden>
+        <div id="lengths" role="group" aria-label="Word length"></div>
+        <button id="skip" type="button">Another word</button>
+      </div>
+
+      <section id="found-section" hidden>
+        <h2>Found <span id="found-count"></span></h2>
+        <ul id="found"></ul>
+      </section>
     </main>
-    <footer>
-      <button id="skip" type="button" disabled>Skip</button>
-      <button id="hide" type="button" aria-pressed="false" disabled>Hide hint</button>
-    </footer>
+
     <script src="sidepanel.js"></script>
   </body>
 </html>
