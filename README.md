@@ -65,5 +65,24 @@ Not affiliated with Hasbro. Boggle is a trademark of Hasbro.
 - GoogleTest: unit tests
 - Google Benchmark: benchmarking
 
+## Building
+
+Needs CMake, Emscripten and Node (`brew install cmake emscripten node`).
+
+```bash
+# Native build + C++ tests
+cmake -S . -B build && cmake --build build && ctest --test-dir build
+
+# WASM module (+ smoke test)
+emcmake cmake -S . -B build-wasm && cmake --build build-wasm
+node wasm/smoke_test.mjs build-wasm/wasm/bogzilla.mjs
+
+# Extension
+cd extension && npm install && npm test && npm run build
+```
+
+Then open `chrome://extensions`, turn on Developer mode, click **Load unpacked** and pick
+`extension/dist`. Open a game on wordshake.com/boggle and click the bogzilla toolbar icon.
+
 Everything runs locally, without a backend server. See [ARCHITECTURE.md](ARCHITECTURE.md) for
 the design.
