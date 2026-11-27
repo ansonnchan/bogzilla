@@ -35,15 +35,36 @@ async function loadRanks(): Promise<FrequencyRanks> {
   return parseFrequencyList(await response.text());
 }
 
+// Fallback for sites that don't expose their answers. Loaded only when first needed, since
+// sites like Wordshake never use it.
+let dictionary: string[] | null = null;
+let dictionaryLoading: Promise<void> | null = null;
+
+function ensureDictionary(): void {
+  dictionaryLoading ??= fetch(chrome.runtime.getURL("enable1.txt"))
+    .then((response) => response.text())
+    .then((text) => {
+      dictionary = text.split("\n").filter(Boolean);
+      update(game);
+    })
+    .catch(console.error);
+}
+
 function update(state: GameState | null): void {
   game = state;
   if (!game || !wasm) return render();
+
+  const words = game.answers ?? dictionary;
+  if (!words) {
+    ensureDictionary();
+    return render();
+  }
 
   // Only re-solve when the board or word list changes, not on every found word.
   const key = JSON.stringify([game.tiles, game.answers]);
   if (key !== solvedKey) {
     solvedKey = key;
-    solutions = wasm.solve(game.tiles, game.answers ?? [], 3) ?? [];
+    solutions = wasm.solve(game.tiles, words, 3) ?? [];
     current = null;
     skipped.clear();
   }
@@ -66,8 +87,8 @@ function render(): void {
   const foundCount = solutions.filter((s) => found.has(s.word)).length;
   el.progress.textContent = solutions.length ? `${foundCount} / ${solutions.length} found` : "";
   el.status.textContent =
-    game.answers === null
-      ? "No word list for this site yet."
+    game.answers === null && dictionary === null
+      ? "Loading dictionary…"
       : !hint
         ? "You found every word!"
         : hidden
