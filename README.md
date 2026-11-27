@@ -70,13 +70,29 @@ Not affiliated with Hasbro. Boggle is a trademark of Hasbro.
 - GoogleTest: unit tests
 - Google Benchmark: benchmarking
 
-## Building
+## Running it locally
 
-Needs CMake, Emscripten and Node (`brew install cmake emscripten node`).
+On a Mac with [Homebrew](https://brew.sh):
 
 ```bash
-# Native build + C++ tests
+git clone https://github.com/ansonnchan/bogzilla.git && cd bogzilla && ./setup.sh
+```
+
+`setup.sh` installs anything missing (CMake, Emscripten, Node), builds the WASM solver and the
+extension, then prints where to load it from. Add `--test` to also run every test.
+
+Then in Chrome: open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**
+and choose `extension/dist`. Open a game on wordshake.com/boggle and click the bogzilla icon.
+An unpacked extension stays installed across restarts; no Chrome Web Store needed.
+
+After pulling changes, rerun `./setup.sh` and click the reload icon on bogzilla.
+
+### Building pieces by hand
+
+```bash
+# Native build + C++ tests + benchmarks
 cmake -S . -B build && cmake --build build && ctest --test-dir build
+./build/bench/bogzilla_bench
 
 # WASM module (+ smoke test)
 emcmake cmake -S . -B build-wasm && cmake --build build-wasm
@@ -85,9 +101,6 @@ node wasm/smoke_test.mjs build-wasm/wasm/bogzilla.mjs
 # Extension
 cd extension && npm install && npm test && npm run build
 ```
-
-Then open `chrome://extensions`, turn on Developer mode, click **Load unpacked** and pick
-`extension/dist`. Open a game on wordshake.com/boggle and click the bogzilla toolbar icon.
 
 Everything runs locally, without a backend server. See [ARCHITECTURE.md](ARCHITECTURE.md) for
 the design.
