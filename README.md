@@ -42,7 +42,8 @@ Not affiliated with Hasbro. Boggle is a trademark of Hasbro.
 - [x] Compact trie for better memory: `PackedTrie`, 8-byte nodes in one array, 13.5x less
   memory than the baseline at the same speed.
 - [x] Benchmark optimizations individually (`bench/`, results in ARCHITECTURE.md).
-- [ ] Share common word endings too (a DAWG), to shrink the trie further.
+- [x] Share common word endings too: `Dawg`, another 3.4x smaller (0.9 MB for ENABLE), at the
+  cost of a slower build, so the extension keeps `PackedTrie`.
 
 ## Chrome extension
 
