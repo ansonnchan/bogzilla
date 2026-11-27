@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { orderCandidates, parseFrequencyList, pickHint, type Solution } from "./hint";
+import {
+  matchesLength,
+  orderCandidates,
+  parseFrequencyList,
+  pickHint,
+  type Solution,
+} from "./hint";
 
 const sol = (word: string): Solution => ({ word, path: [] });
 const solutions = ["theories", "tie", "hissed", "sit", "ties"].map(sol);
@@ -56,8 +62,29 @@ describe("pickHint", () => {
     expect(pickHint(solutions, none, null, none, ranks)?.word).toBe("hissed");
   });
 
+  it("only picks words of the chosen length", () => {
+    expect(pickHint(solutions, none, null, none, undefined, 4)?.word).toBe("ties");
+    expect(pickHint(solutions, none, null, none, undefined, 6)?.word).toBe("hissed");
+    expect(pickHint(solutions, none, null, none, undefined, 5)).toBeNull();
+  });
+
+  it("drops the current hint when it doesn't match the filter", () => {
+    expect(pickHint(solutions, none, "sit", none, undefined, 4)?.word).toBe("ties");
+  });
+
   it("returns null when every word is found", () => {
     const all = new Set(solutions.map((s) => s.word));
     expect(pickHint(solutions, all, null, none)).toBeNull();
+  });
+});
+
+describe("matchesLength", () => {
+  it("treats the last filter as that length or longer", () => {
+    expect(matchesLength("theories", 7)).toBe(true);
+    expect(matchesLength("theorise", 7)).toBe(true);
+    expect(matchesLength("hissed", 7)).toBe(false);
+    expect(matchesLength("tie", null)).toBe(true);
+    expect(matchesLength("tie", 3)).toBe(true);
+    expect(matchesLength("ties", 3)).toBe(false);
   });
 });
