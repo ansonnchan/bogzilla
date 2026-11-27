@@ -32,6 +32,7 @@ for (const file of [
   "src/sidepanel/sidepanel.html",
   "src/sidepanel/sidepanel.css",
   "data/frequency.txt",
+  "data/enable1.txt",
   "data/NOTICE.md",
 ]) {
   cpSync(file, `dist/${file.split("/").pop()}`);
