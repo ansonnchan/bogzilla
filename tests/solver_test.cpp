@@ -7,6 +7,8 @@
 
 #include <gtest/gtest.h>
 
+#include "fixtures.hpp"
+
 using bogzilla::Board;
 using bogzilla::FoundWord;
 using bogzilla::solve;
@@ -118,4 +120,22 @@ TEST(Solver, FindsAllWordshakeAnswers) {
   const auto found = solve(*board, trie);
   EXPECT_EQ(found.size(), trie.word_count());
   for (const auto& f : found) expect_valid_path(*board, f);
+}
+
+// Same cross-check over every saved Wordshake board, including ones with a "qu" tile.
+TEST(Solver, FindsAllAnswersOnSavedWordshakeBoards) {
+  const auto fixtures =
+      bogzilla::testing::load_board_fixtures(BOGZILLA_FIXTURES_DIR "/wordshake_boards.txt");
+  ASSERT_FALSE(fixtures.empty());
+
+  for (const auto& fixture : fixtures) {
+    const auto board = Board::from_tiles(fixture.tiles);
+    ASSERT_TRUE(board);
+    Trie trie;
+    for (const auto& word : fixture.answers) trie.insert(word);
+
+    const auto found = solve(*board, trie);
+    EXPECT_EQ(found.size(), trie.word_count()) << board->to_string();
+    for (const auto& f : found) expect_valid_path(*board, f);
+  }
 }
