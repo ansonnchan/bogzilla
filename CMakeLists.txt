@@ -41,6 +41,10 @@ endif()
 
 add_subdirectory(core)
 
+if(EMSCRIPTEN)
+  add_subdirectory(wasm)
+endif()
+
 if(BOGZILLA_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
