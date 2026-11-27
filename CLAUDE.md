@@ -14,7 +14,8 @@ components, and the per-site page details (selectors). Update it when any of tho
 ## Git workflow
 
 - Commit directly to `main`. **No pull requests.**
-- **One file per commit.** Commit outstanding files iteratively, one at a time.
+- **One small piece per commit.** A commit can span several files if they make up one piece
+  (e.g. trie header + source + tests), but never mixes two pieces (e.g. trie and solver).
 - **Commit subjects are short and informal**: a phrase, not a sentence. e.g. `add dictionary`,
   `trie insert`, `wordshake adapter`.
 - **Before every commit, show the user the changed files (and the diff if useful) and wait for
