@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { orderCandidates, pickHint, type Solution } from "./hint";
+import { orderCandidates, parseFrequencyList, pickHint, type Solution } from "./hint";
 
 const sol = (word: string): Solution => ({ word, path: [] });
 const solutions = ["theories", "tie", "hissed", "sit", "ties"].map(sol);
@@ -9,6 +9,23 @@ describe("orderCandidates", () => {
   it("drops found words and puts shorter words first", () => {
     const ordered = orderCandidates(solutions, new Set(["sit"]));
     expect(ordered.map((s) => s.word)).toEqual(["tie", "ties", "hissed", "theories"]);
+  });
+
+  it("puts common words first and unranked words last", () => {
+    const ranks = parseFrequencyList("sit\ntheories\ntie\n");
+    const ordered = orderCandidates(solutions, none, ranks);
+    expect(ordered.map((s) => s.word)).toEqual(["sit", "theories", "tie", "ties", "hissed"]);
+  });
+});
+
+describe("parseFrequencyList", () => {
+  it("ranks by line, ignoring blanks and repeats", () => {
+    const ranks = parseFrequencyList("the\nthis\n\nthe\nshe\n");
+    expect([...ranks]).toEqual([
+      ["the", 0],
+      ["this", 1],
+      ["she", 2],
+    ]);
   });
 });
 
@@ -32,6 +49,11 @@ describe("pickHint", () => {
   it("starts over when everything left was skipped", () => {
     const all = new Set(solutions.map((s) => s.word));
     expect(pickHint(solutions, none, null, all)?.word).toBe("sit");
+  });
+
+  it("uses frequency ranks when given", () => {
+    const ranks = parseFrequencyList("hissed\n");
+    expect(pickHint(solutions, none, null, none, ranks)?.word).toBe("hissed");
   });
 
   it("returns null when every word is found", () => {
