@@ -1,0 +1,11 @@
+# Build output
+build/
+build-*/
+cmake-build-*/
+
+# Tooling
+compile_commands.json
+.cache/
+
+# macOS
+.DS_Store
