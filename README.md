@@ -2,20 +2,34 @@
 
 A monster at finding words.
 
-A fast Boggle solver written in C++, with a web interface and potentially a Chrome extension. Mainly an excuse to explore algorithms, data structures, and performance optimization.
+An unofficial hint assistant for Boggle-style word games, built as a Chrome extension with a
+fast C++ solver compiled to WebAssembly. Mainly an excuse to explore algorithms, data
+structures, and performance optimization.
+
+Not affiliated with Hasbro. Boggle is a trademark of Hasbro.
+
+## How it works
+
+- Open a supported game (starting with [Wordshake Boggle](https://wordshake.com/boggle)).
+- The extension reads the board and the words you've already found, straight from the page.
+- Chrome's side panel shows a copy of the board with the path of **one** word you haven't found
+  yet, shaded and traced in order.
+- Find that word and the hint moves to the next one automatically. No typing, no screenshots,
+  no timers.
+- Common words come first, obscure ones last.
+- It only reads the game. It never enters words for you.
 
 ## Core solver
 
-- Support both 3×3 and 4×4 Boggle boards (potentially 5×5 later).
-- Load words from a `dictionary.txt` or an open-source English dictionary.
+- Support both 3×3 and 4×4 boards (potentially 5×5 later).
 - Construct a trie for efficient prefix searching.
 - Represent the board as an implicit graph.
 - Use DFS and backtracking to explore all eight neighboring cells without reusing tiles.
 - Prune paths as soon as they no longer form valid prefixes.
 - Handle special tiles such as `Qu`.
 - Deduplicate discovered words.
-- Calculate word scores and sort by length or score.
-- Return the coordinates of each discovered word.
+- Return the path (tile coordinates) of each discovered word.
+- Cross-check results against the site's own answer list where one is available.
 
 ## Algorithms & optimizations
 
@@ -23,45 +37,33 @@ A fast Boggle solver written in C++, with a web interface and potentially a Chro
 - DFS with backtracking.
 - Bitmasking to track visited cells.
 - Precomputed adjacency lists.
-- Dynamic programming / memoization for repeated DFS states.
 - Board-level caching to avoid solving identical boards.
 - Explore arena-allocated tries for better memory locality.
-- Experiment with parallel traversal.
 - Benchmark optimizations individually to see whether they actually improve performance.
 
-## Web app
+## Chrome extension
 
-- Minimalist, clean interface.
-- Manually enter or randomly generate a board.
-- Switch between 3×3 and 4×4 boards.
-- Display all possible words and their scores.
-- Click on a word to visualize its path across the board.
-- Play timed games and review missed words.
-- Display solver statistics (execution time, explored states, pruned branches, cache hits, etc.).
-
-## Chrome extension (potential)
-
-- Detect and extract boards from supported Boggle websites.
-- Run the solver locally through WebAssembly.
-- Display results in a sidebar or overlay.
-- Highlight word paths directly on the board.
-- Support website-specific adapters.
+- Site adapters read the board, found words, and answer list from each supported page.
+- Event-driven: the hint updates the moment a correct word is accepted.
+- The solver runs locally through WebAssembly.
+- Side panel shows the board and the current hint's path.
+- Skip a hint, or hide hints while you're on a roll.
 
 ## Other ideas
 
-- Find the highest-scoring possible Boggle board using hill climbing or simulated annealing.
+- Support more Boggle-style sites.
+- Find the highest-scoring possible board using hill climbing or simulated annealing.
 - Visualize DFS traversal and trie pruning in real time.
-- Compare different solver implementations and their performance.
-- Import physical boards from photos using OCR.
-- Track frequently missed words and personal performance.
+- Track frequently missed words over time.
 
 ## Tech stack
 
-- C++ — core solver
-- WebAssembly — browser integration
-- React / TypeScript — web interface
-- Tailwind CSS — styling
-- Chrome Manifest V3 — browser extension
-- Criterion — benchmarking
+- C++20 + CMake: core solver
+- Emscripten / WebAssembly: running the solver in the browser
+- TypeScript: extension
+- Chrome Manifest V3: browser extension (side panel)
+- GoogleTest: unit tests
+- Google Benchmark: benchmarking
 
-Everything should run locally, without requiring a backend server.
+Everything runs locally, without a backend server. See [ARCHITECTURE.md](ARCHITECTURE.md) for
+the design.
