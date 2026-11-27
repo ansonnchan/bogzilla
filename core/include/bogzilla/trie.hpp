@@ -18,6 +18,8 @@ public:
   // Since kNone == kRoot, check each step for kNone before stepping again.
   static constexpr NodeId kRoot = 0;
   static constexpr NodeId kNone = 0;
+  // Each word ends at its own node, so the solver can dedupe words by node id.
+  static constexpr bool kUniqueWordNodes = true;
 
   Trie();
 

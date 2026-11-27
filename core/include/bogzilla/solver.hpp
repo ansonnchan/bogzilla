@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "bogzilla/board.hpp"
+#include "bogzilla/dawg.hpp"
 #include "bogzilla/packed_trie.hpp"
 #include "bogzilla/trie.hpp"
 
@@ -24,5 +25,6 @@ struct SolveOptions {
 // When a word has several paths, the first one found is kept.
 std::vector<FoundWord> solve(const Board& board, const Trie& trie, SolveOptions options = {});
 std::vector<FoundWord> solve(const Board& board, const PackedTrie& trie, SolveOptions options = {});
+std::vector<FoundWord> solve(const Board& board, const Dawg& trie, SolveOptions options = {});
 
 }  // namespace bogzilla

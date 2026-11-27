@@ -22,6 +22,7 @@ public:
   // As in Trie, the root is never a child, so 0 doubles as "no child".
   static constexpr NodeId kRoot = 0;
   static constexpr NodeId kNone = 0;
+  static constexpr bool kUniqueWordNodes = true;
 
   // Case-insensitive; words that aren't purely a-z are skipped, duplicates collapse.
   static PackedTrie from_words(std::vector<std::string> words);
