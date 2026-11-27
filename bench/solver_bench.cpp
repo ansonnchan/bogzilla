@@ -10,6 +10,7 @@
 
 #include "../tests/fixtures.hpp"
 #include "bogzilla/board.hpp"
+#include "bogzilla/packed_trie.hpp"
 #include "bogzilla/solver.hpp"
 #include "bogzilla/trie.hpp"
 
@@ -31,6 +32,11 @@ const bogzilla::Trie& dictionary_trie() {
     for (const auto& word : dictionary()) t.insert(word);
     return t;
   }();
+  return trie;
+}
+
+const bogzilla::PackedTrie& dictionary_packed() {
+  static const auto trie = bogzilla::PackedTrie::from_words(dictionary());
   return trie;
 }
 
@@ -61,9 +67,22 @@ void BM_TrieBuild(benchmark::State& state) {
 }
 BENCHMARK(BM_TrieBuild)->Unit(benchmark::kMillisecond);
 
+void BM_PackedTrieBuild(benchmark::State& state) {
+  const auto& words = dictionary();
+  std::size_t nodes = 0;
+  for (auto _ : state) {
+    auto trie = bogzilla::PackedTrie::from_words(words);
+    nodes = trie.node_count();
+    benchmark::DoNotOptimize(trie);
+  }
+  state.counters["nodes"] = static_cast<double>(nodes);
+  state.counters["MB"] = static_cast<double>(nodes) * 8 / 1e6;
+}
+BENCHMARK(BM_PackedTrieBuild)->Unit(benchmark::kMillisecond);
+
 // One iteration solves all saved boards.
-void BM_SolveBoards(benchmark::State& state) {
-  const auto& trie = dictionary_trie();
+template <typename TrieT>
+void solve_boards(benchmark::State& state, const TrieT& trie) {
   const auto& all = boards();
   std::size_t words = 0;
   for (auto _ : state) {
@@ -77,6 +96,11 @@ void BM_SolveBoards(benchmark::State& state) {
       static_cast<double>(all.size()), benchmark::Counter::kIsIterationInvariantRate |
                                            benchmark::Counter::kInvert);
 }
+
+void BM_SolveBoards(benchmark::State& state) { solve_boards(state, dictionary_trie()); }
 BENCHMARK(BM_SolveBoards)->Unit(benchmark::kMicrosecond);
+
+void BM_SolveBoardsPacked(benchmark::State& state) { solve_boards(state, dictionary_packed()); }
+BENCHMARK(BM_SolveBoardsPacked)->Unit(benchmark::kMicrosecond);
 
 }  // namespace
