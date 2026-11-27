@@ -52,3 +52,16 @@ endif()
 if(NOT EMSCRIPTEN)
   add_subdirectory(tools)
 endif()
+
+option(BOGZILLA_BUILD_BENCH "Build benchmarks" ${BOGZILLA_TESTS_DEFAULT})
+if(BOGZILLA_BUILD_BENCH)
+  include(FetchContent)
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+  set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
+  FetchContent_Declare(
+    benchmark
+    URL https://github.com/google/benchmark/archive/refs/tags/v1.9.1.tar.gz
+    DOWNLOAD_EXTRACT_TIMESTAMP ON)
+  FetchContent_MakeAvailable(benchmark)
+  add_subdirectory(bench)
+endif()
